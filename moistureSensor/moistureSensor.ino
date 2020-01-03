@@ -53,13 +53,16 @@ void loop()
     if (WiFi.status() == WL_CONNECTED) 
     {
       soil_humidity = analogRead(A0);
+      Serial.print("soil_humidity: ");
       Serial.println(soil_humidity);
       percent = convertToPercent(soil_humidity);
-      if (percent == -1){
+      if (percent == -1)
+      {
         Serial.println("Error converting to percent") ;
         return ;
       }
-   
+
+      Serial.print("jsonGetMoistureThreshold: ");
       Serial.println(jsonGetMoistureThreshold);
 
       String data = "{ \"value\": " + String(percent) + "}" ;
@@ -68,16 +71,16 @@ void loop()
       EITIWiFi.httpPost(resourcePost, EITIWifi_POST_JSON, data);
 
     }
-
-     else{ // falha na ligação. Tenta ligar novamente...
-      Serial.println(F("--- Attention  ---"));
-      Serial.println(F("There is no WiFi conneciton."));
-      Serial.print(F("Try again... "));
-      WiFi.reconnect();
-      Serial.println(F("-----"));
+     else
+     {  // falha na ligação. Tenta ligar novamente...
+        Serial.println(F("--- Attention  ---"));
+        Serial.println(F("There is no WiFi conneciton."));
+        Serial.print(F("Try again... "));
+        WiFi.reconnect();
+        Serial.println(F("-----"));
     }
     
-   delay(1000);
+   delay(50000);
   
   }
 
