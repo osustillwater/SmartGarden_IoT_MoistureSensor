@@ -9,16 +9,18 @@ int percent = 0;
 String ConfigurationValue ;
 StaticJsonDocument<200> doc;
 
+int max_humidity = 0; //wet
+int min_humidity = 0; //dry
 
-int max_humidity = 700; //wet
-int min_humidity = 1023; //dry
+//int max_humidity = 700; //wet
+//int min_humidity = 1023; //dry
 
 //WiFi
 char* ssid = "labs";
 char* password = "robot1cA!ESTG";
 
 //char* ssid = "eventos";
-//char* password = "ESFLC-2019";
+//char* password = "2019";
 
 //API
 String resourceGetThreshold = "http://smart-garden-api.azurewebsites.net/api/Moisture/threshold";
@@ -31,12 +33,13 @@ EITIWifiClass EITIWiFi ;
 String jsonGetMoistureThreshold = "";
 
 
-
 void setup() {
   // initialize serial communication at 9600 bits per second:
+  
   Serial.begin(115200);
   
  //+++++ Initialize WiFi +++++
+ 
   Serial.print(F("Initializing Wi-Fi "));
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
@@ -47,14 +50,11 @@ void setup() {
   //-----
 
   //++++ Show wifi configs +++++
+  
   Serial.println(F("--- Configuracoes Wi-Fi ---"));
   EITIWiFi.showWifiSettings();
   Serial.println(F("-----"));
-  //-----
-
-  // Init temporizer (to send later a request to init loop())
-//  intervalo_tempo_s = (INTERVALO_ENVIOS * 1000000);
- // timer = micros() - ((INTERVALO_ENVIOS + 1) * 1000000);
+  
   //-----
 
   Serial.println();
@@ -62,10 +62,7 @@ void setup() {
 
 void loop() 
 { 
-  // envia um pedido a cada INTERVALO_ENVIOS segundos (para não usar a função delay() no loop()  
- // if (micros() - timer >= intervalo_tempo_s) 
-  //{
-    // Se a ligação se mantém ativa... faz pedido(s)
+    
     if (WiFi.status() == WL_CONNECTED) 
     {
       soil_humidity = analogRead(A0);
@@ -90,6 +87,7 @@ void loop()
      // max_humidity = EITIWiFi.httpGet(resourceGetThreshold).toFloat();
      // min_humidity = EITIWiFi.httpGet(resourceGetConfiguration).toFloat();
      // Serial.println("Threshold");
+     
       Serial.println(jsonGetMoistureThreshold);
 
       String data = "{ \"Percentage\": " + String(percent) + "}" ;
@@ -107,10 +105,10 @@ void loop()
       Serial.println(F("-----"));
     }
     //-----
+    
    delay(1000);
-  //  timer = micros();     // iniciar nova contagem para novo envio
+  
   }
-//}
 
 int convertToPercent(int value)
 {
