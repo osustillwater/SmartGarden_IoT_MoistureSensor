@@ -33,13 +33,16 @@ void setup() {
   
   Serial.begin(115200);
   
-     Serial.print(F("Initializing Wi-Fi "));
-     WiFi.begin(ssid, password);
-        while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(F("."));
-       }
-       Serial.println(F("OK."));
+  Serial.print(F("Initializing Wi-Fi "));
+  WiFi.begin(ssid, password);
+  
+  while (WiFi.status() != WL_CONNECTED) 
+  {
+    delay(500);
+    Serial.print(F("."));
+  }
+  
+  Serial.println(F("OK."));
   
   Serial.println(F("--- Configuracoes Wi-Fi ---"));
   EITIWiFi.showWifiSettings();
@@ -71,8 +74,8 @@ void loop()
       EITIWiFi.httpPost(resourcePost, EITIWifi_POST_JSON, data);
 
     }
-     else
-     {  // falha na ligação. Tenta ligar novamente...
+    else
+    {  // falha na ligação. Tenta ligar novamente...
         Serial.println(F("--- Attention  ---"));
         Serial.println(F("There is no WiFi conneciton."));
         Serial.print(F("Try again... "));
@@ -105,5 +108,6 @@ int convertToPercent(int value)
    max_humidity = doc["maxValue"];
    
    percentValue = map(value, min_humidity, max_humidity, 0, 100);
+   percentValue = percentValue/10;
    return (percentValue);
 }
