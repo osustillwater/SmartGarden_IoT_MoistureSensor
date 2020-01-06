@@ -5,27 +5,28 @@
 #include <ArduinoJson.h>
 
 double soil_humidity;
-int percent = 0;
+double percent = 0;
 String ConfigurationValue ;
+double threshold_moisture = 1; //default
+double current_moisture = 0;
 StaticJsonDocument<200> doc;
 
 int max_humidity = 0; //wet
 int min_humidity = 0; //dry
 
 //WiFi
-char* ssid = "labs";
-char* password = "robot1cA!ESTG";
+char* ssid = "Vodafone-53EAAD";
+char* password = "w85346cu43";
 
 
 //API
 String resourceGetThreshold = "http://smart-garden-api.azurewebsites.net/api/Moisture/threshold";
+String resourceGetMoisture = "http://smart-garden-api.azurewebsites.net/api/Moisture";
 String resourceGetConfiguration = "http://smart-garden-api.azurewebsites.net/api/Moisture/configuration";
 
 String resourcePost = "http://smart-garden-api.azurewebsites.net/api/Moisture?password=bangladesh!123" ;
 
 EITIWifiClass EITIWiFi ;
-
-String jsonGetMoistureThreshold = "";
 
 
 void setup() {
@@ -55,23 +56,36 @@ void loop()
     
     if (WiFi.status() == WL_CONNECTED) 
     {
+      threshold_moisture = EITIWiFi.httpGet(resourceGetThreshold).toFloat();
+
+      Serial.print("threshold_moisture: ");
+      Serial.println(threshold_moisture);
+      
       soil_humidity = analogRead(A0);
       Serial.print("soil_humidity: ");
       Serial.println(soil_humidity);
+      
       percent = convertToPercent(soil_humidity);
+      Serial.print("percent: ");
+      Serial.println(percent);
+
+      Serial.print("current_moisture: ");
+      Serial.println(current_moisture);
+     
       if (percent == -1)
       {
         Serial.println("Error converting to percent") ;
         return ;
       }
+      
+      if (percent >= (current_moisture + threshold_moisture) || percent <= (current_moisture - threshold_moisture)) {
 
-      Serial.print("jsonGetMoistureThreshold: ");
-      Serial.println(jsonGetMoistureThreshold);
-
-      String data = "{ \"value\": " + String(percent) + "}" ;
-      Serial.print(data);
-      Serial.println("%");
-      EITIWiFi.httpPost(resourcePost, EITIWifi_POST_JSON, data);
+        String data = "{ \"value\": " + String(percent) + "}" ;
+        Serial.print(data);
+        Serial.println("%");
+        EITIWiFi.httpPost(resourcePost, EITIWifi_POST_JSON, data);
+        current_moisture =  percent;       
+      }
 
     }
     else
@@ -83,7 +97,7 @@ void loop()
         Serial.println(F("-----"));
     }
     
-   delay(50000);
+   delay(30000);
   
   }
 
@@ -108,6 +122,5 @@ int convertToPercent(int value)
    max_humidity = doc["maxValue"];
    
    percentValue = map(value, min_humidity, max_humidity, 0, 100);
-   percentValue = percentValue/10;
    return (percentValue);
 }
